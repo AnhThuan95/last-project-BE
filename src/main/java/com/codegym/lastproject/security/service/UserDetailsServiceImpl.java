@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @Override
     @Transactional

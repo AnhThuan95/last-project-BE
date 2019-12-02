@@ -82,7 +82,7 @@ public class HouseStatusServiceImpl implements HouseStatusService {
         Date beginDate = new Date(System.currentTimeMillis());
         houseStatus.setBeginDate(beginDate);
 
-        Date endDate = new Date(System.currentTimeMillis() + 7776000000L);
+        Date endDate = new Date(System.currentTimeMillis() + 31536000000L);
         houseStatus.setEndDate(endDate);
 
         Status status = statusService.findByStatus(StatusHouse.AVAILABLE);
