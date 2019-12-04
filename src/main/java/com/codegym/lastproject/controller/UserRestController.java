@@ -1,8 +1,12 @@
 package com.codegym.lastproject.controller;
 
+import com.codegym.lastproject.model.Comment;
+import com.codegym.lastproject.model.House;
 import com.codegym.lastproject.model.Role;
 import com.codegym.lastproject.model.User;
 import com.codegym.lastproject.security.service.UserDetailsServiceImpl;
+import com.codegym.lastproject.service.CommentService;
+import com.codegym.lastproject.service.HouseService;
 import com.codegym.lastproject.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,7 +25,13 @@ public class UserRestController {
     private UserService userService;
 
     @Autowired
-    PasswordEncoder encoder;
+    private PasswordEncoder encoder;
+
+    @Autowired
+    private CommentService commentService;
+
+    @Autowired
+    private HouseService houseService;
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/profile")
@@ -67,5 +77,23 @@ public class UserRestController {
         Role role = originUser.getRole().iterator().next();
 
         return new ResponseEntity<>(role, HttpStatus.OK);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/comment")
+    public ResponseEntity<Void> commentHouse(@RequestBody Comment comment) {
+        User originUser = userDetailsService.getCurrentUser();
+        Comment originComment = new Comment();
+        originComment.setUser(originUser);
+
+        Long id = comment.getHouse().getId();
+        House originHouse = houseService.findById(id);
+        originComment.setHouse(originHouse);
+
+        originComment.setRate(comment.getRate());
+        originComment.setComment(comment.getComment());
+
+        commentService.save(originComment);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }
