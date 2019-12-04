@@ -51,9 +51,9 @@ public class GuestRestController {
         System.out.println(searchForm.getPrice());
         String address;
         if (searchForm.getAddress() == null) {
-            address = "'%%'";
+            address = "%%";
         } else {
-            address = "'%" + searchForm.getAddress() +"%'";
+            address = "%" + searchForm.getAddress() +"%";
         }
         System.out.println(address);
 
