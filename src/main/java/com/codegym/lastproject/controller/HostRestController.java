@@ -156,6 +156,8 @@ public class HostRestController {
         for (HouseStatus houseStatus : houseStatusList) {
             days += (houseStatus.getEndDate().getTime() - houseStatus.getBeginDate().getTime()) / 86400000 + 1;
         }
-        return new ResponseEntity<>(days, HttpStatus.OK);
+
+        long income = days * house.getPrice();
+        return new ResponseEntity<>(income, HttpStatus.OK);
     }
 }
