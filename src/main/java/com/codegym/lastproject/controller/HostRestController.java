@@ -1,5 +1,6 @@
 package com.codegym.lastproject.controller;
 
+import com.codegym.lastproject.message.request.MonthYearForm;
 import com.codegym.lastproject.model.*;
 import com.codegym.lastproject.model.util.CategoryName;
 import com.codegym.lastproject.model.util.StatusOrder;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Date;
 import java.util.List;
 
 @CrossOrigin("*")
@@ -130,5 +132,26 @@ public class HostRestController {
         orderHouseService.saveOrder(orderHouse);
 
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping (value = "/income/{id}")
+    public ResponseEntity<List<HouseStatus>> calculateIncomeByMonth(@PathVariable("id") Long id, @RequestBody MonthYearForm monthYearForm) {
+        User originUser = userDetailsService.getCurrentUser();
+        House house = houseService.findById(id);
+
+        boolean isHost = houseService.isHost(originUser, house);
+        if (house == null || !isHost) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        int month = Math.toIntExact(monthYearForm.getMonth());
+        int year = (int) (monthYearForm.getYear() - 1900);
+
+        Date begin = new Date(year, (month - 1), 1);
+        Date end = new Date(year, month, 1);
+        List<HouseStatus> houseStatusList = houseStatusService.findHouseStatusInMonth(begin, end, id);
+
+        return new ResponseEntity<>(houseStatusList, HttpStatus.OK);
     }
 }
