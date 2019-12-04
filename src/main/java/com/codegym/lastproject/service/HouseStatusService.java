@@ -25,4 +25,6 @@ public interface HouseStatusService {
     HouseStatus findHouseStatusBooked(Date beginDate, Date endDate, Long houseId);
 
     void setStatusNewHouse();
+
+    List<HouseStatus> findHouseStatusInMonth(Date begin, Date end, Long houseId);
 }

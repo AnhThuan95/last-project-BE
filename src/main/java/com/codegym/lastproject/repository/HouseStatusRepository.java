@@ -20,4 +20,6 @@ public interface HouseStatusRepository extends JpaRepository<HouseStatus, Long> 
     HouseStatus findByEndDateEqualsAndHouseIdAndStatus (Date endDate, Long houseId, Status status);
 
     HouseStatus findByBeginDateEqualsAndEndDateEqualsAndHouseIdAndStatus (Date beginDate, Date endDate, Long houseId, Status status);
+
+    List<HouseStatus> findAllByEndDateGreaterThanEqualAndEndDateLessThanAndHouseIdAndStatus(Date begin, Date end, Long houseId, Status status);
 }
