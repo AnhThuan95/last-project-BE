@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
+import java.sql.Date;
 import java.util.List;
 
 @Repository
@@ -15,10 +16,10 @@ public class SearchRepositoryImpl implements SearchRepository {
     private EntityManager entityManager;
 
     @Override
-    public List<House> search(Long bedroomNumber, Long bathroomNumber, Long price, String address) {
+    public List<House> search(Long bedroomNumber, Long bathroomNumber, Long price, String address, Date beginDate, Date endDate) {
         TypedQuery<House> query = null;
         StringBuilder hsql = new StringBuilder();
-        hsql.append("SELECT h FROM House h WHERE");
+        hsql.append("SELECT h FROM House h JOIN HouseStatus s ON h.id = s.house.id WHERE");
         if (bedroomNumber != null) {
             hsql.append(" h.bedroomNumber = :bedroomNumber AND");
         }
@@ -29,8 +30,16 @@ public class SearchRepositoryImpl implements SearchRepository {
             hsql.append(" h.price = :price AND");
         }
         if (address != null) {
-            hsql.append(" h.address like :address");
+            hsql.append(" h.address like :address AND");
         }
+        if (beginDate != null) {
+            hsql.append(" s.beginDate <= :beginDate AND");
+        }
+        if (endDate != null) {
+            hsql.append(" s.endDate >= :endDate AND");
+        }
+        hsql.append(" s.status.id = 1");
+
         query = entityManager.createQuery(hsql.toString(), House.class);
         System.out.println(hsql.toString());
         if (bedroomNumber != null) {
@@ -44,6 +53,12 @@ public class SearchRepositoryImpl implements SearchRepository {
         }
         if (address != null) {
             query.setParameter("address", address);
+        }
+        if (beginDate != null) {
+            query.setParameter("beginDate", beginDate);
+        }
+        if (endDate != null) {
+            query.setParameter("endDate", endDate);
         }
 
         return query.getResultList();

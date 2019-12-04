@@ -11,6 +11,7 @@ import com.codegym.lastproject.service.HouseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
 import java.util.List;
 
 @Service
@@ -72,7 +73,7 @@ public class HouseServiceImpl implements HouseService {
     }
 
     @Override
-    public List<House> search(Long bedroomNumber, Long bathroomNumber, Long price, String address) {
-        return searchRepository.search(bedroomNumber, bathroomNumber, price, address);
+    public List<House> search(Long bedroomNumber, Long bathroomNumber, Long price, String address, Date beginDate, Date endDate) {
+        return searchRepository.search(bedroomNumber, bathroomNumber, price, address, beginDate, endDate);
     }
 }

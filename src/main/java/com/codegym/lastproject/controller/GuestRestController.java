@@ -57,7 +57,7 @@ public class GuestRestController {
         }
         System.out.println(address);
 
-        List<House> houses = houseService.search(searchForm.getBedroomNumber(), searchForm.getBathroomNumber(), searchForm.getPrice(), address);
+        List<House> houses = houseService.search(searchForm.getBedroomNumber(), searchForm.getBathroomNumber(), searchForm.getPrice(), address, searchForm.getBeginDate(), searchForm.getEndDate());
         System.out.println(houses.size());
         if (houses.size() == 0) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

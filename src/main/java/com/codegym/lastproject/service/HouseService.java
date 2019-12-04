@@ -4,6 +4,7 @@ import com.codegym.lastproject.model.House;
 import com.codegym.lastproject.model.OrderHouse;
 import com.codegym.lastproject.model.User;
 
+import java.sql.Date;
 import java.util.List;
 
 public interface HouseService {
@@ -23,5 +24,5 @@ public interface HouseService {
 
     boolean isConformity(OrderHouse orderHouse);
 
-    List<House> search(Long bedroomNumber, Long bathroomNumber, Long price, String address);
+    List<House> search(Long bedroomNumber, Long bathroomNumber, Long price, String address, Date beginDate, Date endDate);
 }
