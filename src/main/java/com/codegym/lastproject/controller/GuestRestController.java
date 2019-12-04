@@ -1,7 +1,9 @@
 package com.codegym.lastproject.controller;
 
 import com.codegym.lastproject.message.request.SearchForm;
+import com.codegym.lastproject.model.Comment;
 import com.codegym.lastproject.model.House;
+import com.codegym.lastproject.service.CommentService;
 import com.codegym.lastproject.service.HouseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,9 @@ import java.util.List;
 public class GuestRestController {
     @Autowired
     private HouseService houseService;
+
+    @Autowired
+    private CommentService commentService;
 
     @GetMapping("/all")
     public ResponseEntity<List<House>> getListHouse() {
@@ -53,7 +58,7 @@ public class GuestRestController {
         if (searchForm.getAddress() == null) {
             address = "%%";
         } else {
-            address = "%" + searchForm.getAddress() +"%";
+            address = "%" + searchForm.getAddress() + "%";
         }
         System.out.println(address);
 
@@ -63,5 +68,14 @@ public class GuestRestController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(houses, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/comment/{id}")
+    public ResponseEntity<?> getListComment(@PathVariable("id") Long id) {
+        List<Comment> comments = commentService.findByHouseId(id);
+        if (comments.size() == 0) {
+            return new ResponseEntity<>("No comment", HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(comments, HttpStatus.OK);
     }
 }
