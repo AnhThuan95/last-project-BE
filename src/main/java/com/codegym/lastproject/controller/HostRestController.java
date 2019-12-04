@@ -135,8 +135,8 @@ public class HostRestController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @PostMapping (value = "/income/{id}")
-    public ResponseEntity<List<HouseStatus>> calculateIncomeByMonth(@PathVariable("id") Long id, @RequestBody MonthYearForm monthYearForm) {
+    @PostMapping(value = "/income/{id}")
+    public ResponseEntity<Long> calculateIncomeByMonth(@PathVariable("id") Long id, @RequestBody MonthYearForm monthYearForm) {
         User originUser = userDetailsService.getCurrentUser();
         House house = houseService.findById(id);
 
@@ -152,6 +152,10 @@ public class HostRestController {
         Date end = new Date(year, month, 1);
         List<HouseStatus> houseStatusList = houseStatusService.findHouseStatusInMonth(begin, end, id);
 
-        return new ResponseEntity<>(houseStatusList, HttpStatus.OK);
+        long days = 0L;
+        for (HouseStatus houseStatus : houseStatusList) {
+            days += (houseStatus.getEndDate().getTime() - houseStatus.getBeginDate().getTime()) / 86400000 + 1;
+        }
+        return new ResponseEntity<>(days, HttpStatus.OK);
     }
 }
