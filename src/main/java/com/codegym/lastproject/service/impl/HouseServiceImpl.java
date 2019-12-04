@@ -5,6 +5,7 @@ import com.codegym.lastproject.model.OrderHouse;
 import com.codegym.lastproject.model.User;
 import com.codegym.lastproject.model.util.StatusOrder;
 import com.codegym.lastproject.repository.HouseRepository;
+import com.codegym.lastproject.repository.SearchRepository;
 import com.codegym.lastproject.security.service.UserDetailsServiceImpl;
 import com.codegym.lastproject.service.HouseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,9 @@ import java.util.List;
 public class HouseServiceImpl implements HouseService {
     @Autowired
     private HouseRepository houseRepository;
+
+    @Autowired
+    private SearchRepository searchRepository;
 
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
@@ -65,5 +69,10 @@ public class HouseServiceImpl implements HouseService {
 
         boolean isHost = isHost(originUser, house);
         return orderHouse == null || house == null || !isHost || !isProcessing;
+    }
+
+    @Override
+    public List<House> search(Long bedroomNumber, Long bathroomNumber, Long price, String address) {
+        return searchRepository.search(bedroomNumber, bathroomNumber, price, address);
     }
 }

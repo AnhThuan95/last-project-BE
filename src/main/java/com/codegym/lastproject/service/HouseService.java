@@ -22,4 +22,6 @@ public interface HouseService {
     boolean isHost(User user, House house);
 
     boolean isConformity(OrderHouse orderHouse);
+
+    List<House> search(Long bedroomNumber, Long bathroomNumber, Long price, String address);
 }
