@@ -19,7 +19,7 @@ public class SearchRepositoryImpl implements SearchRepository {
     public List<House> search(Long bedroomNumber, Long bathroomNumber, Long price, String address, Date beginDate, Date endDate) {
         TypedQuery<House> query = null;
         StringBuilder hsql = new StringBuilder();
-        hsql.append("SELECT h FROM House h JOIN HouseStatus s ON h.id = s.house.id WHERE");
+        hsql.append("SELECT DISTINCT h FROM House h JOIN HouseStatus s ON h.id = s.house.id WHERE");
         if (bedroomNumber != null) {
             hsql.append(" h.bedroomNumber = :bedroomNumber AND");
         }
