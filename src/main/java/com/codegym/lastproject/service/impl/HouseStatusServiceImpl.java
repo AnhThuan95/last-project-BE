@@ -71,6 +71,11 @@ public class HouseStatusServiceImpl implements HouseStatusService {
     }
 
     @Override
+    public List<HouseStatus> findHouseStatusInMonth(Date begin, Date end, Long houseId) {
+        return houseStatusRepository.findAllByEndDateGreaterThanEqualAndEndDateLessThanAndHouseIdAndStatus(begin, end, houseId, statusService.findByStatus(StatusHouse.BOOKED));
+    }
+
+    @Override
     public void setStatusNewHouse() {
         HouseStatus houseStatus = new HouseStatus();
 
