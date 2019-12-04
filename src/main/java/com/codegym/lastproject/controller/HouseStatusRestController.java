@@ -3,12 +3,16 @@ package com.codegym.lastproject.controller;
 import com.codegym.lastproject.model.House;
 import com.codegym.lastproject.model.HouseStatus;
 import com.codegym.lastproject.model.Status;
+import com.codegym.lastproject.model.User;
 import com.codegym.lastproject.model.util.StatusHouse;
+import com.codegym.lastproject.security.service.UserDetailsServiceImpl;
+import com.codegym.lastproject.service.HouseService;
 import com.codegym.lastproject.service.HouseStatusService;
 import com.codegym.lastproject.service.StatusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
@@ -22,7 +26,13 @@ public class HouseStatusRestController {
     private StatusService statusService;
 
     @Autowired
+    private HouseService houseService;
+
+    @Autowired
     private HouseStatusService houseStatusService;
+
+    @Autowired
+    private UserDetailsServiceImpl userDetailsService;
 
     @GetMapping(value = "/{id}")
     public ResponseEntity<List<HouseStatus>> getListHouse(@PathVariable("id") Long id) {
@@ -33,12 +43,20 @@ public class HouseStatusRestController {
         return new ResponseEntity<>(houseStatuses, HttpStatus.OK);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping(value = "/set")
     public ResponseEntity<Void> setHouseStatus(@RequestBody HouseStatus houseStatus) {
+        User originUser = userDetailsService.getCurrentUser();
+        House house = houseService.findById(houseStatus.getHouse().getId());
+
+        boolean isHost = houseService.isHost(originUser, house);
+        if (!isHost) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+
         Long id = houseStatus.getHouse().getId();
         Date beginDate = houseStatus.getBeginDate();
         Date endDate = houseStatus.getEndDate();
-        House house = houseStatus.getHouse();
 
         Status status = statusService.findByStatus(houseStatus.getStatus().getName());
         Status availableStatus = statusService.findByStatus(StatusHouse.AVAILABLE);
@@ -59,7 +77,7 @@ public class HouseStatusRestController {
         if ((beginDate == beginDate1) && (endDate == endDate1)) {
             houseStatus1.setStatus(status);
             houseStatusService.save(houseStatus1);
-            return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>(HttpStatus.CREATED);
         }
 
         boolean isBeginDayEqual = !beginDate.toString().equals(beginDate1.toString());
@@ -78,6 +96,6 @@ public class HouseStatusRestController {
         }
 
         houseStatusService.deleteById(houseStatus1.getId());
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 }
