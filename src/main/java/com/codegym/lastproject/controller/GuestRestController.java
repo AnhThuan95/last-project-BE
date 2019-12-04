@@ -1,5 +1,6 @@
 package com.codegym.lastproject.controller;
 
+import com.codegym.lastproject.message.request.SearchForm;
 import com.codegym.lastproject.model.House;
 import com.codegym.lastproject.service.HouseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,5 +42,26 @@ public class GuestRestController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(house, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/search")
+    public ResponseEntity<List<House>> searchListHouse(@RequestBody SearchForm searchForm) {
+        System.out.println(searchForm.getBedroomNumber());
+        System.out.println(searchForm.getBathroomNumber());
+        System.out.println(searchForm.getPrice());
+        String address;
+        if (searchForm.getAddress() == null) {
+            address = "'%%'";
+        } else {
+            address = "'%" + searchForm.getAddress() +"%'";
+        }
+        System.out.println(address);
+
+        List<House> houses = houseService.search(searchForm.getBedroomNumber(), searchForm.getBathroomNumber(), searchForm.getPrice(), address);
+        System.out.println(houses.size());
+        if (houses.size() == 0) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(houses, HttpStatus.OK);
     }
 }
