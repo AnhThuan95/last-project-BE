@@ -17,13 +17,18 @@ public class Comment {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @ManyToOne
+    @JoinColumn(name = "house_id")
+    private House house;
+
     public Comment() {
     }
 
-    public Comment(Long rate, String comment, User user) {
+    public Comment(Long rate, String comment, User user, House house) {
         this.rate = rate;
         this.comment = comment;
         this.user = user;
+        this.house = house;
     }
 
     public Long getId() {
@@ -56,5 +61,13 @@ public class Comment {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public House getHouse() {
+        return house;
+    }
+
+    public void setHouse(House house) {
+        this.house = house;
     }
 }
