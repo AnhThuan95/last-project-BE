@@ -1,22 +1,22 @@
 package com.codegym.lastproject.message.request;
 
 public class MonthYearForm {
-    private Long month;
-    private Long year;
+    private Integer month;
+    private Integer year;
 
-    public Long getMonth() {
+    public Integer getMonth() {
         return month;
     }
 
-    public void setMonth(Long month) {
+    public void setMonth(Integer month) {
         this.month = month;
     }
 
-    public Long getYear() {
+    public Integer getYear() {
         return year;
     }
 
-    public void setYear(Long year) {
+    public void setYear(Integer year) {
         this.year = year;
     }
 }

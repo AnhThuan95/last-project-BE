@@ -59,9 +59,9 @@ public class AuthRestController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<Void> registerUser(@Valid @RequestBody SignUpForm signUpRequest) {
+    public ResponseEntity<String> registerUser(@Valid @RequestBody SignUpForm signUpRequest) {
         if(userService.existsByEmail(signUpRequest.getEmail())) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Email đã tồn tại, vui lòng dùng email khác. Nếu bạn đã có tài khoản, đăng nhập để tiếp tục.", HttpStatus.BAD_REQUEST);
         }
 
         User user = new User(signUpRequest.getEmail(), encoder.encode(signUpRequest.getPassword()));
@@ -99,6 +99,6 @@ public class AuthRestController {
         user.setRole(roles);
         userService.saveUser(user);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>("Tạo tài khoản thành công, vui lòng đăng nhập để tiếp tục.", HttpStatus.CREATED);
     }
 }

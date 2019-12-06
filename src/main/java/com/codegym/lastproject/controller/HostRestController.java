@@ -39,7 +39,7 @@ public class HostRestController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/createHouse")
-    public ResponseEntity<House> createHouse(@RequestBody House house) {
+    public ResponseEntity<String> createHouse(@RequestBody House house) {
         User originUser = userDetailsService.getCurrentUser();
         House originHouse = new House();
         originHouse.setUser(originUser);
@@ -63,18 +63,21 @@ public class HostRestController {
 
         houseStatusService.setStatusNewHouse();
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>("Tạo nhà thành công!", HttpStatus.OK);
     }
 
     @PreAuthorize("isAuthenticated()")
     @PutMapping(value = "/editHouse/{id}")
-    public ResponseEntity<House> editHouse(@PathVariable("id") Long id, @RequestBody House house) {
+    public ResponseEntity<?> editHouse(@PathVariable("id") Long id, @RequestBody House house) {
         User originUser = userDetailsService.getCurrentUser();
         House originHouse = houseService.findById(id);
 
         boolean isHost = houseService.isHost(originUser, originHouse);
-        if (originHouse == null || !isHost) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if (originHouse == null) {
+            return new ResponseEntity<>("Nhà này không tồn tại!", HttpStatus.NOT_FOUND);
+        }
+        if (!isHost) {
+            return new ResponseEntity<>("Bạn không có quyền thay đổi nhà này!", HttpStatus.NOT_FOUND);
         }
 
         originHouse.setAddress(house.getAddress());
@@ -90,30 +93,39 @@ public class HostRestController {
 
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping(value = "/deleteHouse/{id}")
-    public ResponseEntity<Void> deleteHouse(@PathVariable("id") Long id) {
+    public ResponseEntity<String> deleteHouse(@PathVariable("id") Long id) {
         User originUser = userDetailsService.getCurrentUser();
         House house = houseService.findById(id);
 
         boolean isHost = houseService.isHost(originUser, house);
-        if (house == null || !isHost) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if (house == null) {
+            return new ResponseEntity<>("Nhà này không tồn tại!", HttpStatus.NOT_FOUND);
+        }
+        if (!isHost) {
+            return new ResponseEntity<>("Bạn không có quyền xem nhà này!", HttpStatus.NOT_FOUND);
         }
 
         houseService.deleteHouse(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>("Đã xóa thành công!", HttpStatus.OK);
     }
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping(value = "/listOrder/{id}")
-    public ResponseEntity<List<OrderHouse>> getListOrder(@PathVariable("id") Long id) {
+    public ResponseEntity<?> getListOrder(@PathVariable("id") Long id) {
         User originUser = userDetailsService.getCurrentUser();
         House house = houseService.findById(id);
 
         List<OrderHouse> orderHouseList = orderHouseService.findByHouseId(id);
 
         boolean isHost = houseService.isHost(originUser, house);
-        if (house == null || !isHost || orderHouseList == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if (house == null) {
+            return new ResponseEntity<>("Nhà này không tồn tại!", HttpStatus.NOT_FOUND);
+        }
+        if (!isHost) {
+            return new ResponseEntity<>("Bạn không có quyền xem nhà này!", HttpStatus.NOT_FOUND);
+        }
+        if(orderHouseList.size() == 0) {
+            return new ResponseEntity<>("Nhà này không có yêu cầu nào!", HttpStatus.NOT_FOUND);
         }
 
         return new ResponseEntity<>(orderHouseList, HttpStatus.OK);
@@ -121,32 +133,35 @@ public class HostRestController {
 
     @PreAuthorize("isAuthenticated()")
     @PutMapping(value = "/done/{id}")
-    public ResponseEntity<Void> setDoneOrder(@PathVariable("id") Long id) {
+    public ResponseEntity<String> setDoneOrder(@PathVariable("id") Long id) {
         OrderHouse orderHouse = orderHouseService.findById(id);
         boolean isConformity = houseService.isConformity(orderHouse);
         if (isConformity) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Order này không tồn tại hoặc đã xử lý.", HttpStatus.NOT_FOUND);
         }
 
         orderHouse.setOrderStatus(orderStatusService.findByStatus(StatusOrder.DONE));
         orderHouseService.saveOrder(orderHouse);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>("Yêu cầu đã được chấp nhận thành công!", HttpStatus.OK);
     }
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping(value = "/income/{id}")
-    public ResponseEntity<Long> calculateIncomeByMonth(@PathVariable("id") Long id, @RequestBody MonthYearForm monthYearForm) {
+    public ResponseEntity<String> calculateIncomeByMonth(@PathVariable("id") Long id, @RequestBody MonthYearForm monthYearForm) {
         User originUser = userDetailsService.getCurrentUser();
         House house = houseService.findById(id);
 
         boolean isHost = houseService.isHost(originUser, house);
-        if (house == null || !isHost) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if (house == null) {
+            return new ResponseEntity<>("Nhà này không tồn tại!", HttpStatus.NOT_FOUND);
+        }
+        if (!isHost) {
+            return new ResponseEntity<>("Bạn không có quyền xem nhà này!", HttpStatus.NOT_FOUND);
         }
 
-        int month = Math.toIntExact(monthYearForm.getMonth());
-        int year = (int) (monthYearForm.getYear() - 1900);
+        int month = monthYearForm.getMonth();
+        int year = monthYearForm.getYear() - 1900;
 
         Date begin = new Date(year, (month - 1), 1);
         Date end = new Date(year, month, 1);
@@ -158,6 +173,6 @@ public class HostRestController {
         }
 
         long income = days * house.getPrice();
-        return new ResponseEntity<>(income, HttpStatus.OK);
+        return new ResponseEntity<>("Thu nhập tháng " + monthYearForm.getMonth() + " nam " + monthYearForm.getYear() + " cua nha nay la: " + income + " VND!", HttpStatus.OK);
     }
 }

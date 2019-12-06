@@ -81,7 +81,7 @@ public class UserRestController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/comment")
-    public ResponseEntity<Void> commentHouse(@RequestBody Comment comment) {
+    public ResponseEntity<String> commentHouse(@RequestBody Comment comment) {
         User originUser = userDetailsService.getCurrentUser();
         Comment originComment = new Comment();
         originComment.setUser(originUser);
@@ -94,6 +94,6 @@ public class UserRestController {
         originComment.setComment(comment.getComment());
 
         commentService.save(originComment);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>("Bạn đã đánh giá thành công!", HttpStatus.CREATED);
     }
 }

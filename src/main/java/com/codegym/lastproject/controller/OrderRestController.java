@@ -39,46 +39,49 @@ public class OrderRestController {
 
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @GetMapping(value = "/")
-    public ResponseEntity<List<OrderHouse>> getListOrderHouseByUser() {
+    public ResponseEntity<?> getListOrderHouseByUser() {
         User originUser = userDetailsService.getCurrentUser();
 
         List<OrderHouse> orderHouses = orderHouseService.findByTenantId(originUser.getId());
         if (orderHouses.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Bạn chưa đặt nhà nào.", HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(orderHouses, HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('HOST') or hasRole('ADMIN')")
     @GetMapping(value = "/{id}")
-    public ResponseEntity<List<OrderHouse>> getListProcessingOrderHouseByHouseId(@PathVariable("id") Long id) {
+    public ResponseEntity<?> getListProcessingOrderHouseByHouseId(@PathVariable("id") Long id) {
         List<OrderHouse> orderHouses = orderHouseService.findProcessingOrderByHouseId(id);
         if (orderHouses.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Không có yêu cầu nào đang xử lý.", HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(orderHouses, HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('HOST') or hasRole('ADMIN')")
     @GetMapping(value = "/all/{id}")
-    public ResponseEntity<List<OrderHouse>> getListAllOrderHouseByHouseId(@PathVariable("id") Long id) {
+    public ResponseEntity<?> getListAllOrderHouseByHouseId(@PathVariable("id") Long id) {
         List<OrderHouse> orderHouses = orderHouseService.findByHouseId(id);
         if (orderHouses.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Nhà này đang không có yêu cầu đặt.", HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(orderHouses, HttpStatus.OK);
     }
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping(value = "/create")
-    public ResponseEntity<Void> createOrderHouse(@RequestBody OrderHouse orderHouse) {
+    public ResponseEntity<String> createOrderHouse(@RequestBody OrderHouse orderHouse) {
         OrderHouse originOrderHouse = new OrderHouse();
         Date checkin = orderHouse.getCheckin();
         Date checkout = orderHouse.getCheckout();
         Date orderDate = new Date(System.currentTimeMillis());
 
-        if (checkin.getTime() > checkout.getTime() || checkin.getTime() < orderDate.getTime()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if (checkin.getTime() > checkout.getTime()){
+            return new ResponseEntity<>("Thời gian checkout phải sau thời gian checkin.", HttpStatus.BAD_REQUEST);
+        }
+        if (checkin.getTime() < orderDate.getTime()) {
+            return new ResponseEntity<>("Vui lòng chọn thời gian đặt phòng sau ngày hôm nay.", HttpStatus.BAD_REQUEST);
         }
 
         User originUser = userDetailsService.getCurrentUser();
@@ -96,17 +99,16 @@ public class OrderRestController {
         HouseStatus houseStatus1 = houseStatusService.findHouseStatusAvailable(checkin, checkout, id);
 
         if (houseStatus1 == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Khoảng thời gian này đã có người đặt, vui lòng chọn ngày khác.", HttpStatus.BAD_REQUEST);
         }
 
         Date beginDate1 = houseStatus1.getBeginDate();
         Date endDate1 = houseStatus1.getEndDate();
 
-        if ((checkin == beginDate1)
-                && (checkout == endDate1)) {
+        if ((checkin == beginDate1) && (checkout == endDate1)) {
             houseStatus1.setStatus(statusService.findByStatus(houseStatus.getStatus().getName()));
             houseStatusService.save(houseStatus1);
-            return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>("Đặt phòng thành công!", HttpStatus.OK);
         }
 
         boolean isBeginDayEqual = !checkin.toString().equals(beginDate1.toString());
@@ -133,12 +135,12 @@ public class OrderRestController {
         originOrderHouse.setOrderDate(orderDate);
         originOrderHouse.setOrderStatus(orderStatusService.findByStatus(StatusOrder.PROCESSING));
         orderHouseService.saveOrder(originOrderHouse);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>("Đặt phòng thành công!", HttpStatus.OK);
     }
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping(value = "/delete/{id}")
-    public ResponseEntity<Void> deleteOrderHouse(@PathVariable("id") Long id) {
+    public ResponseEntity<String> deleteOrderHouse(@PathVariable("id") Long id) {
         User originUser = userDetailsService.getCurrentUser();
         OrderHouse orderHouse = orderHouseService.findById(id);
 
@@ -146,12 +148,12 @@ public class OrderRestController {
 
         if (role.getName() == RoleName.ROLE_USER) {
             if (orderHouse.getTenant() != originUser) {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>("Đây không phải order của bạn, không thể xóa.", HttpStatus.NOT_FOUND);
             }
         } else {
             boolean isConformity = houseService.isConformity(orderHouse);
             if (isConformity) {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>("Đây khôn phải nhà của bạn, không thể setup.", HttpStatus.NOT_FOUND);
             }
         }
 
@@ -186,6 +188,6 @@ public class OrderRestController {
 
         orderHouse.setOrderStatus(orderStatusService.findByStatus(StatusOrder.CANCELED));
         orderHouseService.saveOrder(orderHouse);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>("Xóa order thành công!", HttpStatus.OK);
     }
 }

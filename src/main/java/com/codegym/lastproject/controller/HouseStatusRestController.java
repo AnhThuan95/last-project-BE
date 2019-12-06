@@ -35,17 +35,17 @@ public class HouseStatusRestController {
     private UserDetailsServiceImpl userDetailsService;
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<List<HouseStatus>> getListHouse(@PathVariable("id") Long id) {
+    public ResponseEntity<?> getListHouse(@PathVariable("id") Long id) {
         List<HouseStatus> houseStatuses = houseStatusService.findAllByHouseId(id);
         if (houseStatuses.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Bạn chưa tạo nhà nào!", HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(houseStatuses, HttpStatus.OK);
     }
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping(value = "/set")
-    public ResponseEntity<Void> setHouseStatus(@RequestBody HouseStatus houseStatus) {
+    public ResponseEntity<String> setHouseStatus(@RequestBody HouseStatus houseStatus) {
         User originUser = userDetailsService.getCurrentUser();
         House house = houseService.findById(houseStatus.getHouse().getId());
 
@@ -62,13 +62,13 @@ public class HouseStatusRestController {
         Status availableStatus = statusService.findByStatus(StatusHouse.AVAILABLE);
 
         if (beginDate.getTime() > endDate.getTime()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Thời gian checkout phải sau thời gian checkin.", HttpStatus.BAD_REQUEST);
         }
 
         HouseStatus houseStatus1 = houseStatusService.findHouseStatusAvailable(beginDate, endDate, id);
 
         if (houseStatus1 == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Khoảng thời gian này đã có người đặt, vui lòng chọn ngày khác.", HttpStatus.BAD_REQUEST);
         }
         
         Date beginDate1 = houseStatus1.getBeginDate();
@@ -77,7 +77,7 @@ public class HouseStatusRestController {
         if ((beginDate == beginDate1) && (endDate == endDate1)) {
             houseStatus1.setStatus(status);
             houseStatusService.save(houseStatus1);
-            return new ResponseEntity<>(HttpStatus.CREATED);
+            return new ResponseEntity<>("Tạo order thành công!", HttpStatus.CREATED);
         }
 
         boolean isBeginDayEqual = !beginDate.toString().equals(beginDate1.toString());
@@ -96,6 +96,6 @@ public class HouseStatusRestController {
         }
 
         houseStatusService.deleteById(houseStatus1.getId());
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>("Tạo order thành công!", HttpStatus.CREATED);
     }
 }
