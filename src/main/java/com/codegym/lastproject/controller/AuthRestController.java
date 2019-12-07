@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,38 +31,44 @@ import java.util.Set;
 @RequestMapping("/api/auth")
 public class AuthRestController {
     @Autowired
-    AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @Autowired
-    RoleService roleService;
+    private RoleService roleService;
 
     @Autowired
-    PasswordEncoder encoder;
+    private PasswordEncoder encoder;
 
     @Autowired
-    JwtProvider jwtProvider;
+    private JwtProvider jwtProvider;
 
     @PostMapping("/signin")
-    public ResponseEntity<?> authenticateUser(@RequestBody LoginForm loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.getEmail(),
-                        loginRequest.getPassword()
-                )
-        );
+    public ResponseEntity<?> authenticateUser(@RequestBody LoginForm loginRequest) throws Exception {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        String jwt = jwtProvider.generateJwtToken(authentication);
-        return ResponseEntity.ok(new JwtResponse(jwt));
+            String jwt = jwtProvider.generateJwtToken(authentication);
+
+
+            return new ResponseEntity<>(new JwtResponse(jwt), HttpStatus.OK);
+        } catch (DisabledException e) {
+            e.printStackTrace();
+            throw new Exception("USER_DISABLED", e);
+        } catch (BadCredentialsException e) {
+            e.printStackTrace();
+            throw new Exception("Tên đăng nhập hoặc mật khẩu không đúng, vui lòng nhập lại.", e);
+        }
     }
 
     @PostMapping("/signup")
     public ResponseEntity<Void> registerUser(@Valid @RequestBody SignUpForm signUpRequest) {
-        if(userService.existsByEmail(signUpRequest.getEmail())) {
+        if (userService.existsByEmail(signUpRequest.getEmail())) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
@@ -70,7 +78,7 @@ public class AuthRestController {
         Set<Role> roles = new HashSet<>();
 
         strRoles.forEach(role -> {
-            switch(role) {
+            switch (role) {
                 case "admin":
                     Role adminRole = roleService.findByName(RoleName.ROLE_ADMIN);
                     if (adminRole == null) {
