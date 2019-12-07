@@ -1,8 +1,14 @@
 package com.codegym.lastproject.message.request;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+
 public class LoginForm {
+    @NotBlank
+    @Email
     private String email;
 
+    @NotBlank
     private String password;
 
     public String getEmail() {

@@ -3,6 +3,8 @@ package com.codegym.lastproject.model;
 import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -14,7 +16,11 @@ public class User {
     private Long id;
 
     @NaturalId
+    @NotBlank
+    @Email
     private String email;
+
+    @NotBlank
     private String password;
 
     private String name;
