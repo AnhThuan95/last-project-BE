@@ -148,12 +148,12 @@ public class OrderRestController {
 
         if (role.getName() == RoleName.ROLE_USER) {
             if (orderHouse.getTenant() != originUser) {
-                return new ResponseEntity<>("Đây không phải order của bạn, không thể xóa.", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>("Đây không phải order của bạn, không thể xóa.", HttpStatus.BAD_REQUEST);
             }
         } else {
             boolean isConformity = houseService.isConformity(orderHouse);
             if (isConformity) {
-                return new ResponseEntity<>("Đây khôn phải nhà của bạn, không thể setup.", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>("Đây không phải nhà của bạn, không thể setup.", HttpStatus.BAD_REQUEST);
             }
         }
 
@@ -188,6 +188,6 @@ public class OrderRestController {
 
         orderHouse.setOrderStatus(orderStatusService.findByStatus(StatusOrder.CANCELED));
         orderHouseService.saveOrder(orderHouse);
-        return new ResponseEntity<>("Xóa order thành công!", HttpStatus.OK);
+        return new ResponseEntity<>("Hủy order thành công!", HttpStatus.OK);
     }
 }

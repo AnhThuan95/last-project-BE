@@ -51,7 +51,7 @@ public class HouseStatusRestController {
 
         boolean isHost = houseService.isHost(originUser, house);
         if (!isHost) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>("Bạn không có quyền xem nhà này!", HttpStatus.BAD_REQUEST);
         }
 
         Long id = houseStatus.getHouse().getId();
