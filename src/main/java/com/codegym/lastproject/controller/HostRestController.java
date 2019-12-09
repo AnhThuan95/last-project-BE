@@ -87,6 +87,10 @@ public class HostRestController {
         originHouse.setHouseName(house.getHouseName());
         originHouse.setPrice(house.getPrice());
 
+        if (house.getImageUrls() != null) {
+            originHouse.setImageUrls(house.getImageUrls());
+        }
+
         houseService.save(originHouse);
         return new ResponseEntity<>(originHouse, HttpStatus.OK);
     }
@@ -173,6 +177,6 @@ public class HostRestController {
         }
 
         long income = days * house.getPrice();
-        return new ResponseEntity<>("Thu nhập tháng " + monthYearForm.getMonth() + " nam " + monthYearForm.getYear() + " cua nha nay la: " + income + " VND!", HttpStatus.OK);
+        return new ResponseEntity<>("Thu nhập tháng " + monthYearForm.getMonth() + " năm " + monthYearForm.getYear() + " của nhà này là: " + income + " VND!", HttpStatus.OK);
     }
 }

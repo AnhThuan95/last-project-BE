@@ -38,7 +38,7 @@ public class SearchRepositoryImpl implements SearchRepository {
         if (endDate != null) {
             hsql.append(" s.endDate >= :endDate AND");
         }
-        hsql.append(" s.status.id = 1");
+        hsql.append(" s.status.name = 'AVAILABLE'");
 
         query = entityManager.createQuery(hsql.toString(), House.class);
         System.out.println(hsql.toString());
