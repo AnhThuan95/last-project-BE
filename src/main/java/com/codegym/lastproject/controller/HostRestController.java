@@ -90,6 +90,9 @@ public class HostRestController {
         originHouse.setHouseName(house.getHouseName());
         originHouse.setPrice(house.getPrice());
 
+        originHouse.setLat(house.getLat());
+        originHouse.setLng(house.getLng());
+
         if (house.getImageUrls() != null) {
             originHouse.setImageUrls(house.getImageUrls());
         }
