@@ -22,4 +22,9 @@ public class CommentServiceImpl implements CommentService {
     public List<Comment> findByHouseId(Long houseId) {
         return commentRepository.findAllByHouseId(houseId);
     }
+
+    @Override
+    public void delete(Long id) {
+        commentRepository.deleteById(id);
+    }
 }

@@ -37,6 +37,9 @@ public class HostRestController {
     @Autowired
     private OrderStatusService orderStatusService;
 
+    @Autowired
+    private CommentService commentService;
+
     @PreAuthorize("hasRole('HOST')")
     @PostMapping("/createHouse")
     public ResponseEntity<String> createHouse(@RequestBody House house) {
@@ -113,6 +116,21 @@ public class HostRestController {
         }
         if (!isHost) {
             return new ResponseEntity<>("Bạn không có quyền xem nhà này!", HttpStatus.NOT_FOUND);
+        }
+
+        List<Comment> comments = commentService.findByHouseId(id);
+        for (Comment comment: comments) {
+            commentService.delete(comment.getId());
+        }
+
+        List<OrderHouse> orderHouseList = orderHouseService.findByHouseId(id);
+        for (OrderHouse orderHouse : orderHouseList) {
+            orderHouseService.deleteOrder(orderHouse.getId());
+        }
+
+        List<HouseStatus> houseStatusList = houseStatusService.findAllByHouseId(id);
+        for (HouseStatus houseStatus: houseStatusList) {
+            houseStatusService.deleteById(houseStatus.getId());
         }
 
         houseService.deleteHouse(id);

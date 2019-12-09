@@ -8,4 +8,6 @@ public interface CommentService {
     void save(Comment comment);
 
     List<Comment> findByHouseId(Long houseId);
+
+    void delete(Long id);
 }
