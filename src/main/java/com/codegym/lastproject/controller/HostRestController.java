@@ -59,6 +59,9 @@ public class HostRestController {
         originHouse.setHouseName(house.getHouseName());
         originHouse.setPrice(house.getPrice());
 
+        originHouse.setLat(house.getLat());
+        originHouse.setLng(house.getLng());
+
         houseService.save(originHouse);
 
         houseStatusService.setStatusNewHouse();

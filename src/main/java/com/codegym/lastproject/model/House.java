@@ -25,13 +25,16 @@ public class House {
     private Long area;
     private Long price;
 
+    private Double lat;
+    private Double lng;
+
     @Column(columnDefinition = "LONGTEXT")
     private String imageUrls;
 
     public House() {
     }
 
-    public House(String houseName, User user, Category category, String address, Long bedroomNumber, Long bathroomNumber, Long area, Long price, String imageUrls) {
+    public House(String houseName, User user, Category category, String address, Long bedroomNumber, Long bathroomNumber, Long area, Long price, String imageUrls, Double lat, Double lng) {
         this.houseName = houseName;
         this.user = user;
         this.category = category;
@@ -41,6 +44,8 @@ public class House {
         this.area = area;
         this.price = price;
         this.imageUrls = imageUrls;
+        this.lat = lat;
+        this.lng = lng;
     }
 
     public Long getId() {
@@ -121,5 +126,21 @@ public class House {
 
     public void setImageUrls(String imageUrls) {
         this.imageUrls = imageUrls;
+    }
+
+    public Double getLat() {
+        return lat;
+    }
+
+    public void setLat(Double lat) {
+        this.lat = lat;
+    }
+
+    public Double getLng() {
+        return lng;
+    }
+
+    public void setLng(Double lng) {
+        this.lng = lng;
     }
 }
