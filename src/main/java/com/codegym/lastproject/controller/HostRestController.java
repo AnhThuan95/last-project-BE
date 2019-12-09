@@ -37,7 +37,7 @@ public class HostRestController {
     @Autowired
     private OrderStatusService orderStatusService;
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('HOST')")
     @PostMapping("/createHouse")
     public ResponseEntity<String> createHouse(@RequestBody House house) {
         User originUser = userDetailsService.getCurrentUser();
@@ -66,7 +66,7 @@ public class HostRestController {
         return new ResponseEntity<>("Tạo nhà thành công!", HttpStatus.OK);
     }
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('HOST')")
     @PutMapping(value = "/editHouse/{id}")
     public ResponseEntity<?> editHouse(@PathVariable("id") Long id, @RequestBody House house) {
         User originUser = userDetailsService.getCurrentUser();
@@ -95,7 +95,7 @@ public class HostRestController {
         return new ResponseEntity<>(originHouse, HttpStatus.OK);
     }
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('HOST')")
     @DeleteMapping(value = "/deleteHouse/{id}")
     public ResponseEntity<String> deleteHouse(@PathVariable("id") Long id) {
         User originUser = userDetailsService.getCurrentUser();
@@ -113,7 +113,7 @@ public class HostRestController {
         return new ResponseEntity<>("Đã xóa thành công!", HttpStatus.OK);
     }
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('HOST')")
     @GetMapping(value = "/listOrder/{id}")
     public ResponseEntity<?> getListOrder(@PathVariable("id") Long id) {
         User originUser = userDetailsService.getCurrentUser();
@@ -135,7 +135,7 @@ public class HostRestController {
         return new ResponseEntity<>(orderHouseList, HttpStatus.OK);
     }
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('HOST')")
     @PutMapping(value = "/done/{id}")
     public ResponseEntity<String> setDoneOrder(@PathVariable("id") Long id) {
         OrderHouse orderHouse = orderHouseService.findById(id);
@@ -150,7 +150,7 @@ public class HostRestController {
         return new ResponseEntity<>("Yêu cầu đã được chấp nhận thành công!", HttpStatus.OK);
     }
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('HOST')")
     @PostMapping(value = "/income/{id}")
     public ResponseEntity<String> calculateIncomeByMonth(@PathVariable("id") Long id, @RequestBody MonthYearForm monthYearForm) {
         User originUser = userDetailsService.getCurrentUser();
