@@ -28,7 +28,7 @@ public class House {
     private Double lat;
     private Double lng;
 
-    @Column(columnDefinition = "LONGTEXT")
+    @Column(columnDefinition = "TEXT")
     private String imageUrls;
 
     public House() {
